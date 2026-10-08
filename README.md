@@ -1,13 +1,23 @@
 # OpenTelemetry 智能体可观测性对照实验报告 (otel-agent-lab)
 
-本项目在 `J:\workroom\otel-agent-lab` 下完整实现了基于 **LangGraph** 的双方案 OpenTelemetry 可观测性对照实验，统一上报至本地 **Arize Phoenix[ˈfiːnɪks]** 监控与可视化平台。
+本项目完整实现了基于 **LangGraph** 的双方案 OpenTelemetry 可观测性对照实验，统一上报至本地 **Arize Phoenix** 监控与可视化平台。
 
 ---
 
 ## 1. 运行环境配置
-* **Conda 虚拟环境**：`pycharm`
-* **Python 解释器路径**：`D:\win7app\anaconda3\envs\pycharm\python.exe` (Python 3.11.5)
-* **可观测性服务端**：Arize Phoenix (端口 `6006`，前端地址 `http://localhost:6006`)
+* **Python 环境**：Python 3.10+ (推荐 3.11)
+* **依赖安装**：
+  ```bash
+  pip install -r requirements.txt
+  ```
+* **环境配置**：
+  复制配置模板并配置相应的 LLM API Key：
+  ```bash
+  cp .env.example .env
+  # Windows PowerShell:
+  # Copy-Item .env.example .env
+  ```
+* **可观测性服务端**：Arize Phoenix (默认端口 `6006`，前端控制台 `http://localhost:6006`)
 * **遥测协议**：OpenTelemetry OTLP/HTTP 批处理传输 (`http://localhost:6006/v1/traces`)
 
 ---
@@ -16,7 +26,7 @@
 
 | 对比维度 | 方案 A：自动插桩 (Auto-instrumentation) | 方案 B：手动打点 (Manual-instrumentation) |
 | :--- | :--- | :--- |
-| **入口脚本** | [`agent_auto.py`](file:///J:/workroom/otel-agent-lab/agent_auto.py) | [`agent_manual.py`](file:///J:/workroom/otel-agent-lab/agent_manual.py) |
+| **入口脚本** | [`agent_auto.py`](./agent_auto.py) | [`agent_manual.py`](./agent_manual.py) |
 | **核心机制** | `LangChainInstrumentor().instrument()` 动态劫持 (Monkey Patching) | 原生 `tracer.start_as_current_span(...)` 显式创建 Span |
 | **业务代码侵入度** | **零侵入（0%）**：业务代码与常规 LangGraph 毫无区别 | **高侵入（约 40% 样板代码）**：每个 Node、工具与返回需手动维护 Span 上下文 |
 | **链路树粒度** | **极度细致**：自动将 `RunnableSequence`、`ChatOpenAI`、`ToolCall` 全层级解构展示 | **高度定制、聚焦核心**：仅展示开发者关心的业务节点与关键工具，层级精简干净 |
@@ -27,21 +37,23 @@
 
 ## 3. 快速复现与运行步骤
 
+> **提示 (Windows 用户)**：若终端出现中文输出乱码，可先在终端执行 `$env:PYTHONUTF8=1`。
+
 ### 步骤 1：启动 Phoenix 观测平台
-在终端中启动 Phoenix 服务端守护进程：
-```powershell
-& "D:\win7app\anaconda3\envs\pycharm\python.exe" "J:\workroom\otel-agent-lab\run_phoenix.py"
+在终端中启动 Phoenix 服务端后台：
+```bash
+python run_phoenix.py
 ```
 启动后在浏览器打开：👉 **`http://localhost:6006`**
 
 ### 步骤 2：运行方案 A（自动插桩）
-```powershell
-$env:PYTHONUTF8=1; & "D:\win7app\anaconda3\envs\pycharm\python.exe" "J:\workroom\otel-agent-lab\agent_auto.py"
+```bash
+python agent_auto.py
 ```
 
 ### 步骤 3：运行方案 B（手动打点）
-```powershell
-$env:PYTHONUTF8=1; & "D:\win7app\anaconda3\envs\pycharm\python.exe" "J:\workroom\otel-agent-lab\agent_manual.py"
+```bash
+python agent_manual.py
 ```
 
 ---
