@@ -1,3 +1,6 @@
-arize-phoenix>=4.0.0
-openinference-instrumentor-langchain>=0.1.20
+# sqlean-py 3.50+ lacks Windows wheels, pinned to 3.49.1 with wheels
+arize-phoenix>=20.0.0
+sqlean-py==3.49.1
+openinference-instrumentation-langchain>=0.1.20
 python-dotenv>=1.0.0
+langgraph-checkpoint-sqlite>=3.0.0

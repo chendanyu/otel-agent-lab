@@ -73,3 +73,10 @@ htmlcov/
 # Phoenix / Observability local data
 .phoenix/
 phoenix_data/
+
+# Databases & local runtime records
+*.db
+*.sqlite
+*.sqlite3
+tool_call_records.json
+
